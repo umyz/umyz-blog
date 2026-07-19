@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 
 import { GridPattern } from '@/components/GridPattern'
 import { formatDate, sortByDate } from '@/lib/dates'
 import { articles } from '@/data/articles'
 
-const CATEGORIES = ['All', 'Guides', 'Software', 'Benchmarking', 'Essay', 'Hardware']
 const ARTICLES_PER_PAGE = 8
 
 function TileHighlight() {
@@ -69,6 +68,7 @@ function ArticleCard({ article }) {
 }
 
 export function AllContent({ category, tag }) {
+  const categoryOptions = useMemo(() => ['All', ...new Set(articles.flatMap(article => article.categories || []))], [])
   const [activeCategory, setActiveCategory] = useState(category || 'All')
   const [displayedCount, setDisplayedCount] = useState(ARTICLES_PER_PAGE)
   const [isLoading, setIsLoading] = useState(false)
@@ -124,7 +124,7 @@ export function AllContent({ category, tag }) {
       {/* Category Filter Tabs - only show when no category prop */}
       {showTabs && (
         <div className="flex flex-wrap gap-2 mb-8">
-          {CATEGORIES.map((cat) => (
+          {categoryOptions.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
