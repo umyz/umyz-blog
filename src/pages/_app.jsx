@@ -48,6 +48,8 @@ export default function App({ Component, pageProps }) {
   const imagePosition = pageProps.imagePosition
   const description = pageProps.description || `${pageProps.title} - umyz` || 'umyz - Linux guides, software reviews, and tech content'
   const pageTitle = pageProps.title ? `${pageProps.title} - umyz` : 'umyz - Linux Guides, Reviews & Homelab Tutorials'
+  const canonicalPath = router.asPath.split(/[?#]/)[0] || '/'
+  const canonicalUrl = `https://umyz.tr${canonicalPath}`
 
   return (
     <ErrorBoundary>
@@ -80,23 +82,25 @@ export default function App({ Component, pageProps }) {
         <meta name="description" content={description} />
 
         {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://umyz.tr${router.asPath}`} />
+        <meta property="og:type" content={pageProps.isContentPage ? 'article' : 'website'} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={description} />
         {cover && <meta property="og:image" content={`https://umyz.tr${cover}`} />}
+        {cover && <meta property="og:image:alt" content={pageProps.title || 'umyz yazı kapak görseli'} />}
         <meta property="og:site_name" content="umyz" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content={`https://umyz.tr${router.asPath}`} />
+        <meta name="twitter:url" content={canonicalUrl} />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={description} />
         {cover && <meta name="twitter:image" content={`https://umyz.tr${cover}`} />}
+        {cover && <meta name="twitter:image:alt" content={pageProps.title || 'umyz yazı kapak görseli'} />}
         <meta name="twitter:creator" content="@umyztr" />
 
         {/* Canonical URL */}
-        <link rel="canonical" href={`https://umyz.tr${router.asPath}`} />
+        <link rel="canonical" href={canonicalUrl} />
 
         {/* RSS Feed */}
         <link rel="alternate" type="application/rss+xml" title="umyz RSS Feed" href="https://umyz.tr/rss" />
