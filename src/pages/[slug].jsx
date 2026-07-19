@@ -92,6 +92,12 @@ function extractSections(content) {
   return sections
 }
 
+function estimateReadingMinutes(content) {
+  const readable = content.replace(/```[\s\S]*?```/g, ' ').replace(/<[^>]*>/g, ' ')
+  const words = readable.trim().split(/\s+/).filter(Boolean).length
+  return Math.max(1, Math.ceil(words / 220))
+}
+
 export async function getStaticPaths() {
   const paths = Object.keys(slugMap).map((slug) => ({
     params: { slug }
@@ -127,6 +133,7 @@ export async function getStaticProps({ params }) {
 
   // Extract just the MDX content (without exports/imports)
   const mdxContent = extractMdxContent(rawContent)
+  const readingMinutes = estimateReadingMinutes(mdxContent)
 
   // Extract sections for table of contents
   const sections = extractSections(mdxContent)
@@ -152,6 +159,7 @@ export async function getStaticProps({ params }) {
       tags,
       cover: cover || null,
       imagePosition: imagePosition || null,
+      readingMinutes,
       sections,
       editUrl: `https://github.com/umyz/umyz-blog/tree/main/src/content/${slugData.path}`,
       isContentPage: true,

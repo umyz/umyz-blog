@@ -45,7 +45,8 @@ Bu belge, Git/MDX tabanlı umyz blogunun WordPress rahatlığında yönetilmesi 
 
 ## 5. Blog deneyimi
 
-- [ ] Arama, ilgili yazılar, okuma süresi ve içerik serileri ekle.
+- [x] Makale sayfalarına okuma süresi ekle.
+- [ ] Arama, ilgili yazılar ve içerik serilerini tamamla.
 - [ ] Sayfalama ile dinamik kategori/etiket arşivlerini tamamla.
 - [ ] SEO kontrol listesi, Open Graph/Canonical doğrulama ve görsel alt metin uyarıları ekle.
 - [ ] Taslak/planlanmış içeriklerin ziyaretçilere görünmemesini garanti et.

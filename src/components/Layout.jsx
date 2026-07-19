@@ -68,7 +68,7 @@ function useTableOfContents(tableOfContents) {
   return { currentSection, showJumpToTop }
 }
 
-export function Layout({ children, title, date, dateModified, tableOfContents, authors: authorNames, coverImage, imagePosition, editUrl, isContentPage, tags }) {
+export function Layout({ children, title, date, dateModified, readingMinutes, tableOfContents, authors: authorNames, coverImage, imagePosition, editUrl, isContentPage, tags }) {
   let router = useRouter()
   const relatedArticles = isContentPage ? getRelatedArticles(tags, router.asPath, 4) : []
 
@@ -196,6 +196,7 @@ export function Layout({ children, title, date, dateModified, tableOfContents, a
                 {dateModified && dateModified !== date && (
                   <span>· Updated <time dateTime={dateModified}>{formatDate(dateModified, 'long')}</time></span>
                 )}
+                {readingMinutes && <span>· {readingMinutes} min read</span>}
               </div>
             )}
             {authorNames && authorNames.length > 0 && (
