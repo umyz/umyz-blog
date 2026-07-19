@@ -1,0 +1,15 @@
+.editor-mode-switch { display: flex; align-items: center; gap: 6px; margin: -14px 0 16px; color: #91a394; font: 11px 'DM Mono', monospace; }
+.editor-mode-switch span { margin-right: 5px; text-transform: uppercase; letter-spacing: .08em; }
+.editor-mode-switch button, .rich-toolbar button { padding: 7px 9px; border-radius: 6px; color: #c7d6c9; background: #243025; font-size: 12px; }
+.editor-mode-switch button.active, .rich-toolbar button.active { color: #152116; background: #b8eb74; }
+.rich-toolbar { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px 0; border-top: 1px solid #29342b; border-bottom: 1px solid #29342b; }
+.tiptap-content { min-height: 54vh; margin-top: 18px; color: #edf4ee; outline: none; font: 15px/1.8 Manrope, system-ui, sans-serif; }
+.tiptap-content > :first-child { margin-top: 0; }
+.tiptap-content h2 { margin: 32px 0 12px; font-size: 24px; }
+.tiptap-content p { margin: 0 0 16px; }
+.tiptap-content ul { padding-left: 24px; margin: 0 0 16px; }
+.tiptap-content blockquote { margin: 18px 0; padding: 10px 16px; border-left: 3px solid #b8eb74; color: #bac9bc; background: #1d261e; }
+.tiptap-content pre { overflow: auto; padding: 14px; border-radius: 8px; background: #101510; }
+.rich-editor-warning { max-width: 760px; }
+.rich-editor-warning p { margin-bottom: 9px; }
+@media (max-width: 640px) { .editor-mode-switch { flex-wrap: wrap; } }
