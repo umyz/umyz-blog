@@ -35,7 +35,7 @@ Bu belge, Git/MDX tabanlı umyz blogunun WordPress rahatlığında yönetilmesi 
 - [x] Yazar profili, avatarı ve sosyal bağlantıları için yönetim ekranı ekle.
 - [x] Kategori/etiket yönetimi ve boş taksonomileri gizleme ekle.
 - [x] Revizyon geçmişi ve geri alma ekle. (Her kayıttan önceki MDX sürümü saklanır.)
-- [ ] Revizyonlar arası görsel karşılaştırma ekle.
+- [x] Revizyonlar arası görsel karşılaştırma ekle.
 
 ## 4. Yayın, güvenlik ve operasyon
 

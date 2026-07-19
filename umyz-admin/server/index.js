@@ -193,6 +193,18 @@ app.get('/api/articles/:slug/revisions', async (req, res, next) => {
   } catch (error) { next(error) }
 })
 
+app.get('/api/articles/:slug/revisions/:revision', async (req, res, next) => {
+  try {
+    const slug = safeSegment(req.params.slug)
+    const revision = String(req.params.revision)
+    if (!slug || !/^\d+$/.test(revision)) return res.status(400).json({ error: 'Geçersiz revizyon.' })
+    const source = path.join(revisionsDir, slug, `${revision}.mdx`)
+    if (!existsSync(source)) return res.status(404).json({ error: 'Revizyon bulunamadı.' })
+    const parsed = readMdx(await readFile(source, 'utf8'))
+    res.json({ id: revision, ...parsed })
+  } catch (error) { next(error) }
+})
+
 app.post('/api/articles/:slug/revisions/:revision/restore', async (req, res, next) => {
   try {
     const slug = safeSegment(req.params.slug)

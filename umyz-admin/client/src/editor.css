@@ -12,3 +12,10 @@
 .revision-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 0; border-top: 1px solid #29352b; color: #aab8ac; font: 12px 'DM Mono', monospace; }
 .revision-item button { padding: 7px 10px; border-radius: 6px; color: #dcebdc; background: #253026; font: 11px 'DM Mono', monospace; }
 .revision-item button:hover { background: #354637; }
+.revision-compare { margin-top: 20px; }
+.revision-compare select { max-width: 280px; }
+.revision-diff { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.revision-diff > div { min-width: 0; }
+.revision-diff strong { display: block; margin-bottom: 8px; color: #b9c9bc; font-size: 12px; }
+.revision-diff pre { min-height: 240px; overflow: auto; margin: 0; padding: 14px; color: #dce6dd; background: #111711; border: 1px solid #29352b; border-radius: 8px; font: 12px/1.65 'DM Mono', monospace; white-space: pre-wrap; }
+@media (max-width: 760px) { .revision-diff { grid-template-columns: 1fr; } .revision-compare select { max-width: none; } }

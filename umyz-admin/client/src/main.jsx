@@ -70,6 +70,7 @@ function App() {
       {view === 'editor' && <EditorModeSwitch mode={editorMode} setMode={setEditorMode} />}
       {view === 'editor' && (editorMode === 'visual' ? <RichEditor article={article} dirty={dirty} update={update} onSave={action(save)} onAutoSave={action(() => save(true))} /> : <Editor article={article} dirty={dirty} update={update} onSave={action(save)} onAutoSave={action(() => save(true))} onUpload={action(upload)} onRestoreRevision={action(restoreRevision)} />)}
       {view === 'editor' && <RevisionHistory article={article} onRestore={action(restoreRevision)} />}
+      {view === 'editor' && <RevisionComparePanel article={article} />}
       {view === 'editor' && <SeoChecklist article={article} />}
       {view === 'settings' && <Settings config={config} setConfig={setConfig} onNotice={setNotice} />}
       {view === 'settings' && <PagesManager config={config} setConfig={setConfig} onNotice={setNotice} />}
@@ -105,6 +106,16 @@ function RevisionHistory({ article, onRestore }) {
   const load = async () => { if (!article.slug) return setRevisions([]); setLoading(true); try { const response = await fetch(`/api/articles/${article.slug}/revisions`); const data = await response.json(); if (!response.ok) throw new Error(data.error); setRevisions(data) } finally { setLoading(false) } }
   useEffect(() => { load().catch(() => setRevisions([])) }, [article.slug])
   return <section className="panel revision-history"><div className="panel-title"><div><h2>Sürüm geçmişi</h2><p>Her kayıttan önceki hal otomatik saklanır.</p></div><button type="button" onClick={() => load()}>Yenile</button></div>{!article.slug ? <div className="empty-state"><p>İlk kayıttan sonra sürümler burada görünür.</p></div> : loading ? <div className="empty-state"><p>Yükleniyor…</p></div> : revisions.length ? <div className="revision-list">{revisions.slice(0, 12).map(revision => <div className="revision-item" key={revision.id}><span>{formatDate(revision.createdAt)} · {new Intl.DateTimeFormat('tr-TR', { timeStyle: 'short' }).format(new Date(revision.createdAt))}</span><button type="button" onClick={() => onRestore(article.slug, revision.id)}>Bu sürümü geri al</button></div>)}</div> : <div className="empty-state"><p>Henüz önceki bir sürüm yok.</p></div>}</section>
+}
+function RevisionComparePanel({ article }) {
+  const [revisions, setRevisions] = useState([])
+  const [selected, setSelected] = useState('')
+  const [revision, setRevision] = useState(null)
+  const [loading, setLoading] = useState(false)
+  useEffect(() => { if (!article.slug) { setRevisions([]); setSelected(''); setRevision(null); return } fetch(`/api/articles/${article.slug}/revisions`).then(response => response.ok ? response.json() : []).then(setRevisions).catch(() => setRevisions([])) }, [article.slug])
+  const compare = async value => { setSelected(value); if (!value) return setRevision(null); setLoading(true); try { const response = await fetch(`/api/articles/${article.slug}/revisions/${value}`); const data = await response.json(); if (!response.ok) throw new Error(data.error); setRevision(data) } finally { setLoading(false) } }
+  if (!article.slug || !revisions.length) return null
+  return <section className="panel revision-compare"><div className="panel-title"><div><h2>Sürüm karşılaştırma</h2><p>Seçilen eski sürümü, kaydedilmemiş mevcut metinle yan yana inceleyin.</p></div><select value={selected} onChange={event => compare(event.target.value)}><option value="">Bir sürüm seçin</option>{revisions.map(item => <option value={item.id} key={item.id}>{formatDate(item.createdAt)} · {new Intl.DateTimeFormat('tr-TR', { timeStyle: 'short' }).format(new Date(item.createdAt))}</option>)}</select></div>{loading && <p>Karşılaştırma yükleniyor…</p>}{revision && <div className="revision-diff"><div><strong>Seçilen eski sürüm</strong><pre>{revision.body || ''}</pre></div><div><strong>Mevcut düzenleme</strong><pre>{article.body || ''}</pre></div></div>}</section>
 }
 function PagesManager({ config, setConfig, onNotice }) {
   const pages = config?.pages || []
