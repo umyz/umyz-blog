@@ -1,0 +1,5 @@
+.feedback { display: flex; align-items: center; gap: 8px; margin: -16px 0 20px; padding: 11px 13px; border: 1px solid; border-radius: 9px; font-size: 13px; }
+.feedback span { font-weight: 800; }
+.feedback.success { color: #d9f9ad; border-color: #4c703b; background: #1d2c1b; }
+.feedback.error { color: #ffd0c8; border-color: #7d4138; background: #321d1b; }
+.feedback button { margin-left: auto; color: inherit; background: transparent; font-size: 18px; }

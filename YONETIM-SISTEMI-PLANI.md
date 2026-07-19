@@ -33,7 +33,7 @@ Bu belge, Git/MDX tabanlı umyz blogunun WordPress rahatlığında yönetilmesi 
 - [x] Admin panelini yeniden tasarla: net yan menü, gösterge paneli, kartlar ve mobil uyum.
 - [x] Markdown alanına görsel zengin editör ekle. (Başlık, kalın/italik, liste, alıntı, kod ve geri alma; gelişmiş MDX için kaynak modu korunur.)
 - [x] Düzenleyicide canlı önizleme ve kontrollü MDX blokları ekle. (Görsel zengin editör sonraki dilimde.)
-- [ ] İyi hata, başarı, yükleme ve boş durum ekranları ekle.
+- [x] İyi hata, başarı, yükleme ve boş durum ekranları ekle. (Başarı/hata bildirimleri, yüklenme ve boş durum metinleri eklendi.)
 
 ## 3. Medya ve yönetim verileri
 
