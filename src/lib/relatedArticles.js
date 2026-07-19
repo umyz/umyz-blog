@@ -18,3 +18,10 @@ export function getRelatedArticles(currentTags, currentHref, limit = 4) {
     .slice(0, limit)
     .map(({ article }) => article)
 }
+
+export function getSeriesArticles(series, currentHref) {
+  if (!series) return []
+  return articles
+    .filter(article => article.href !== currentHref && article.series === series)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+}

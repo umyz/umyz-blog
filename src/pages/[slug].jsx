@@ -128,6 +128,7 @@ export async function getStaticProps({ params }) {
   const authors = parseExport(rawContent, 'authors') || []
   const categories = parseExport(rawContent, 'categories') || []
   const tags = parseExport(rawContent, 'tags') || []
+  const series = parseExport(rawContent, 'series') || ''
   const cover = parseExport(rawContent, 'cover')
   const imagePosition = parseExport(rawContent, 'imagePosition')
 
@@ -157,6 +158,7 @@ export async function getStaticProps({ params }) {
       authors,
       categories,
       tags,
+      series,
       cover: cover || null,
       imagePosition: imagePosition || null,
       readingMinutes,

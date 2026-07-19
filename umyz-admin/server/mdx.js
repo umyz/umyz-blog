@@ -37,7 +37,7 @@ function exportDeclaration(name, value) {
 }
 
 export function writeMdx(metadata, body) {
-  const fields = ['title', 'description', 'date', 'status', 'authors', 'categories', 'tags', 'cover']
+  const fields = ['title', 'description', 'date', 'status', 'authors', 'categories', 'tags', 'series', 'cover']
   const program = t.program(fields.map(field => exportDeclaration(field, metadata[field])))
   return `${generate(program, { retainLines: false }).code}\n\n${body.trim()}\n`
 }

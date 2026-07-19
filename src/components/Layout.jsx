@@ -21,7 +21,7 @@ import {TopContentBanner} from "@/components/TopContentBanner";
 import {useSidebarStore} from "@/components/SidebarState";
 import {CoverImageBackground} from "@/components/CoverImageBackground";
 import {formatDate} from "@/lib/dates";
-import {getRelatedArticles} from "@/lib/relatedArticles";
+import {getRelatedArticles, getSeriesArticles} from "@/lib/relatedArticles";
 
 function useTableOfContents(tableOfContents) {
   let [currentSection, setCurrentSection] = useState(tableOfContents[0]?.id)
@@ -68,9 +68,10 @@ function useTableOfContents(tableOfContents) {
   return { currentSection, showJumpToTop }
 }
 
-export function Layout({ children, title, date, dateModified, readingMinutes, tableOfContents, authors: authorNames, coverImage, imagePosition, editUrl, isContentPage, tags }) {
+export function Layout({ children, title, date, dateModified, readingMinutes, tableOfContents, authors: authorNames, coverImage, imagePosition, editUrl, isContentPage, tags, series }) {
   let router = useRouter()
   const relatedArticles = isContentPage ? getRelatedArticles(tags, router.asPath, 4) : []
+  const seriesArticles = isContentPage ? getSeriesArticles(series, router.asPath) : []
 
   // Build edit URL: use provided editUrl for content pages, or construct from pathname for pages
   const githubEditUrl = editUrl || `https://github.com/umyz/umyz-blog/tree/main/src/pages${router.pathname === '/' ? '/index' : router.pathname}.mdx`
@@ -298,6 +299,15 @@ export function Layout({ children, title, date, dateModified, readingMinutes, ta
               </>
             )}
           </nav>
+          {seriesArticles.length > 0 && (
+            <div className={clsx("w-80", tableOfContents.length > 0 ? "mt-10" : "mt-0")}>
+              <p className="text-xs font-medium uppercase tracking-wide text-primary-500">İçerik serisi</p>
+              <h2 className="mt-1 font-display text-sm font-medium text-slate-900 dark:text-white">{series}</h2>
+              <ul role="list" className="mt-4 space-y-3">
+                {seriesArticles.map((article) => <li key={article.href}><Link href={article.href} className="text-sm text-slate-700 hover:text-primary-500 dark:text-slate-300">{article.title}</Link></li>)}
+              </ul>
+            </div>
+          )}
           {relatedArticles.length > 0 && (
             <div className={clsx("w-80", tableOfContents.length > 0 ? "mt-10" : "mt-0")}>
               <h2 className="font-display text-sm font-medium text-slate-900 dark:text-white mb-4">

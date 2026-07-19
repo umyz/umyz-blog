@@ -69,6 +69,7 @@ function generateArticles() {
     const cover = parseExport(content, 'cover')
     const categories = parseExport(content, 'categories') || []
     const tags = parseExport(content, 'tags') || []
+    const series = parseExport(content, 'series') || ''
     const status = parseExport(content, 'status') || 'published'
 
     // Get last modified date from git
@@ -89,6 +90,7 @@ function generateArticles() {
       cover: cover || null,
       categories,
       tags,
+      series,
     })
   }
 
