@@ -1,13 +1,25 @@
 .media-panel { min-height: 70vh; }
 .media-search { width: 240px; }
 .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-top: 20px; }
+.media-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; }
+.media-layout .media-grid { margin-top: 20px; }
 .media-actions { display: flex; gap: 10px; align-items: center; }
 .media-actions button { white-space: nowrap; padding: 9px 11px; border-radius: 7px; color: #dcebdc; background: #253026; font-size: 12px; }
 .media-audit { margin: 16px 0; padding: 11px; border-radius: 8px; color: #d8c18c; background: #2b2519; font-size: 12px; }
 .media-audit span { display: block; margin-top: 6px; color: #b9c9bc; font-family: 'DM Mono', monospace; font-size: 11px; }
 .media-card { overflow: hidden; padding: 0; text-align: left; color: #dce6dd; background: #202a22; border: 1px solid #344238; border-radius: 9px; }
 .media-card:hover { border-color: #b8eb74; transform: translateY(-1px); }
+.media-card.active { border-color: #b8eb74; box-shadow: 0 0 0 2px #b8eb7430; }
 .media-card img { display: block; width: 100%; aspect-ratio: 1.4; object-fit: cover; background: #111711; }
 .media-card span, .media-card small { display: block; overflow: hidden; padding: 8px 9px 0; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
 .media-card small { padding: 3px 9px 9px; color: #8fa190; }
+.media-details { position: sticky; top: 20px; display: grid; gap: 10px; padding: 13px; border: 1px solid #344238; border-radius: 10px; background: #121a13; }
+.media-details > img { display: block; width: 100%; aspect-ratio: 1.3; object-fit: cover; border-radius: 6px; background: #111711; }
+.media-details strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.media-details label { display: grid; gap: 5px; color: #9daf9f; font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.media-details input { padding: 8px; font-family: Manrope, system-ui, sans-serif; font-size: 12px; text-transform: none; letter-spacing: normal; }
+.media-details small { color: #829487; font-size: 11px; line-height: 1.5; }
+.media-details button { padding: 9px; border-radius: 7px; color: #142016; background: #b8eb74; font-weight: 700; font-size: 12px; }
+.media-details button.secondary { color: #dcebdc; background: #253026; }
+@media (max-width: 800px) { .media-layout { grid-template-columns: 1fr; } .media-details { position: static; } }
 @media (max-width: 640px) { .media-search { width: 100%; } .media-actions { align-items: stretch; flex-direction: column; } }

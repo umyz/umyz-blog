@@ -39,7 +39,7 @@ Bu belge, Git/MDX tabanlı umyz blogunun WordPress rahatlığında yönetilmesi 
 
 - [x] Medya kütüphanesi: kart görünümü, arama, klasörleme ve kapak görseli seçimi.
 - [x] Görsel yüklemede WebP dönüşümü ve en fazla 2560px boyutlandırma ekle. (GIF animasyonları korunur.)
-- [ ] Medya için düzenlenebilir alt metin ve başlık yönetimi ekle.
+- [x] Medya için düzenlenebilir alt metin ve başlık yönetimi ekle.
 - [x] Kullanılmayan medya taraması ekle. (Raporlama yapar; otomatik silmez.)
 - [x] Yazar profili, avatarı ve sosyal bağlantıları için yönetim ekranı ekle.
 - [x] Kategori/etiket yönetimi ve boş taksonomileri gizleme ekle.

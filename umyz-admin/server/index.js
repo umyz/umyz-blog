@@ -19,6 +19,7 @@ const repository = path.resolve(process.env.GIT_REPOSITORY || projectRoot)
 const gitBinary = process.env.GIT_BIN || (process.platform === 'win32' && existsSync('C:\\Program Files\\Git\\cmd\\git.exe') ? 'C:\\Program Files\\Git\\cmd\\git.exe' : 'git')
 const siteConfigFile = path.resolve(process.env.SITE_CONFIG_FILE || '../src/data/site-config.json')
 const authorsFile = path.resolve(process.env.AUTHORS_FILE || '../src/data/authors.json')
+const mediaMetadataFile = path.resolve(process.env.MEDIA_METADATA_FILE || '../src/data/media.json')
 const trashDir = path.join(contentDir, '.trash')
 const revisionsDir = path.join(contentDir, '.revisions')
 const publishLogFile = path.join(repository, '.admin', 'publish-history.json')
@@ -39,6 +40,24 @@ async function appendPublishHistory(entry) {
   history.unshift(entry)
   await mkdir(path.dirname(publishLogFile), { recursive: true })
   await writeFile(publishLogFile, `${JSON.stringify(history.slice(0, 30), null, 2)}\n`, 'utf8')
+}
+
+async function readMediaMetadata() {
+  if (!existsSync(mediaMetadataFile)) return {}
+  try {
+    const metadata = JSON.parse(await readFile(mediaMetadataFile, 'utf8'))
+    return metadata && !Array.isArray(metadata) ? metadata : {}
+  } catch { return {} }
+}
+
+const mediaDefaults = name => {
+  const title = path.parse(name).name.replace(/[-_]+/g, ' ').trim()
+  return { title, alt: title }
+}
+
+const toMediaItem = (file, metadata) => {
+  const publicPath = `/${path.relative(path.dirname(mediaDir), file).replaceAll('\\', '/')}`
+  return { name: path.basename(file), path: publicPath, folder: path.relative(mediaDir, path.dirname(file)).replaceAll('\\', '/'), ...mediaDefaults(path.basename(file)), ...(metadata[publicPath] || {}) }
 }
 
 app.get('/api/site-config', async (_req, res, next) => {
@@ -117,11 +136,23 @@ app.get('/api/trash', async (_req, res, next) => {
 app.get('/api/media', async (_req, res, next) => {
   try {
     const files = (await walk(mediaDir, true)).filter(file => imageExtensions.has(path.extname(file).toLowerCase()))
-    res.json(files.map(file => ({
-      name: path.basename(file),
-      path: `/${path.relative(path.dirname(mediaDir), file).replaceAll('\\', '/')}`,
-      folder: path.relative(mediaDir, path.dirname(file)).replaceAll('\\', '/')
-    })).sort((a, b) => a.path.localeCompare(b.path)))
+    const metadata = await readMediaMetadata()
+    res.json(files.map(file => toMediaItem(file, metadata)).sort((a, b) => a.path.localeCompare(b.path)))
+  } catch (error) { next(error) }
+})
+
+app.put('/api/media/metadata', async (req, res, next) => {
+  try {
+    const publicPath = String(req.body?.path || '')
+    const title = String(req.body?.title || '').trim().slice(0, 180)
+    const alt = String(req.body?.alt || '').trim().slice(0, 250)
+    if (!publicPath.startsWith('/docs-static/') || publicPath.includes('..')) return res.status(400).json({ error: 'Geçersiz görsel yolu.' })
+    const file = path.resolve(path.dirname(mediaDir), `.${publicPath}`)
+    if (!file.startsWith(`${mediaDir}${path.sep}`) || !existsSync(file)) return res.status(404).json({ error: 'Görsel bulunamadı.' })
+    const metadata = await readMediaMetadata()
+    metadata[publicPath] = { title: title || mediaDefaults(path.basename(file)).title, alt: alt || mediaDefaults(path.basename(file)).alt }
+    await writeFile(mediaMetadataFile, `${JSON.stringify(metadata, null, 2)}\n`, 'utf8')
+    res.json({ ok: true, path: publicPath, ...metadata[publicPath] })
   } catch (error) { next(error) }
 })
 
@@ -251,7 +282,11 @@ app.post('/api/media', upload.single('file'), async (req, res, next) => {
     } else {
       await sharp(req.file.buffer).rotate().resize({ width: 2560, height: 2560, fit: 'inside', withoutEnlargement: true }).webp({ quality: 82 }).toFile(output)
     }
-    res.status(201).json({ path: `/${path.relative(path.dirname(mediaDir), output).replaceAll('\\', '/')}`, title: originalBase, alt: originalBase.replaceAll('-', ' ') })
+    const publicPath = `/${path.relative(path.dirname(mediaDir), output).replaceAll('\\', '/')}`
+    const metadata = await readMediaMetadata()
+    metadata[publicPath] = { title: originalBase, alt: originalBase.replaceAll('-', ' ') }
+    await writeFile(mediaMetadataFile, `${JSON.stringify(metadata, null, 2)}\n`, 'utf8')
+    res.status(201).json({ path: publicPath, ...metadata[publicPath] })
   } catch (error) { next(error) }
 })
 
@@ -263,7 +298,7 @@ app.post('/api/publish', async (req, res, next) => {
     const build = process.platform === 'win32'
       ? await exec('cmd.exe', ['/d', '/s', '/c', 'npm run build'], { cwd: repository, maxBuffer: 20 * 1024 * 1024 })
       : await exec('npm', ['run', 'build'], { cwd: repository, maxBuffer: 20 * 1024 * 1024 })
-    await exec(gitBinary, ['add', 'src/content', 'src/data/site-config.json', 'src/data/authors.json', 'public/docs-static'], { cwd: repository })
+    await exec(gitBinary, ['add', 'src/content', 'src/data/site-config.json', 'src/data/authors.json', 'src/data/media.json', 'public/docs-static'], { cwd: repository })
     const { stdout: pending } = await exec(gitBinary, ['diff', '--cached', '--name-only'], { cwd: repository })
     let committed = false
     if (pending.trim()) {
