@@ -321,6 +321,14 @@ app.post('/api/publish', async (req, res, next) => {
   }
 })
 
+app.get('/api/publish/summary', async (_req, res, next) => {
+  try {
+    const { stdout } = await exec(gitBinary, ['status', '--short', '--', 'src/content', 'src/data/site-config.json', 'src/data/authors.json', 'src/data/media.json', 'public/docs-static'], { cwd: repository })
+    const changes = stdout.trim().split('\n').filter(Boolean).map(line => ({ status: line.slice(0, 2).trim() || 'M', path: line.slice(3).trim() }))
+    res.json({ changes, total: changes.length })
+  } catch (error) { next(error) }
+})
+
 app.get('/api/publish/history', async (_req, res, next) => {
   try { res.json(await readPublishHistory()) } catch (error) { next(error) }
 })

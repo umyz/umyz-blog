@@ -6,6 +6,11 @@
 .pages-manager { margin-top: 20px; }
 .publish-panel { margin-top: 20px; }
 .publish-history { margin-top: 20px; }
+.publish-summary { margin-top: 20px; }
+.publish-summary ul { display: grid; gap: 7px; margin: 14px 0; padding: 0; list-style: none; }
+.publish-summary li { overflow-wrap: anywhere; padding: 8px 10px; border-radius: 7px; color: #cbd8cc; background: #111711; font: 11px 'DM Mono', monospace; }
+.publish-summary li b { margin-right: 7px; color: #b8eb74; }
+.publish-summary small { color: #91a394; font-size: 11px; }
 .publish-history-list { display: grid; gap: 8px; }
 .history-item { display: flex; gap: 10px; align-items: flex-start; padding: 11px 0; border-top: 1px solid #29352b; }
 .history-item > span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; font-weight: 800; }
