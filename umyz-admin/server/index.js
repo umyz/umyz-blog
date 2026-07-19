@@ -5,7 +5,7 @@ import { mkdir, readdir, readFile, writeFile, rename, rm } from 'node:fs/promise
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { execFile } from 'node:child_process'
+import { execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
 import { readMdx, writeMdx } from './mdx.js'
 
@@ -238,11 +238,25 @@ app.post('/api/media', upload.single('file'), async (req, res, next) => {
 app.post('/api/publish', async (req, res, next) => {
   try {
     if (process.env.GIT_PUBLISH_ENABLED !== 'true') return res.status(403).json({ error: 'Yayınlama için GIT_PUBLISH_ENABLED=true ayarlayın.' })
-    const message = `Makale eklendi: ${String(req.body.title || 'taslak').slice(0, 100)}`
-    await exec(gitBinary, ['add', 'src/content', 'src/data/site-config.json', 'public/docs-static'], { cwd: repository })
-    await exec(gitBinary, ['commit', '-m', message], { cwd: repository })
-    await exec(gitBinary, ['push'], { cwd: repository })
-    res.json({ ok: true })
+    const message = `Yayınla: ${String(req.body.title || 'yönetim paneli').slice(0, 100)}`
+    const build = process.platform === 'win32'
+      ? await exec('cmd.exe', ['/d', '/s', '/c', 'npm run build'], { cwd: repository, maxBuffer: 20 * 1024 * 1024 })
+      : await exec('npm', ['run', 'build'], { cwd: repository, maxBuffer: 20 * 1024 * 1024 })
+    await exec(gitBinary, ['add', 'src/content', 'src/data/site-config.json', 'src/data/authors.json', 'public/docs-static'], { cwd: repository })
+    const { stdout: pending } = await exec(gitBinary, ['diff', '--cached', '--name-only'], { cwd: repository })
+    let committed = false
+    if (pending.trim()) {
+      await exec(gitBinary, ['commit', '-m', message], { cwd: repository })
+      await exec(gitBinary, ['push'], { cwd: repository })
+      committed = true
+    }
+    let restarted = false
+    if (process.env.LOCAL_RESTART_ENABLED === 'true' && process.platform === 'win32') {
+      const restart = spawn('cmd.exe', ['/c', path.join(repository, 'scripts', 'restart-blog.cmd')], { detached: true, stdio: 'ignore' })
+      restart.unref()
+      restarted = true
+    }
+    res.json({ ok: true, committed, restarted, build: build.stdout.slice(-1200) })
   } catch (error) { next(error) }
 })
 

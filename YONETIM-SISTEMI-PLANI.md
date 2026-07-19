@@ -2,6 +2,14 @@
 
 Bu belge, Git/MDX tabanlı umyz blogunun WordPress rahatlığında yönetilmesi için canlı takip listesidir. Her madde tamamlandıkça `[x]` yapılacaktır.
 
+## Uygulama önceliği
+
+1. Tek tuşla derleme, Git yayını ve yerel blog yeniden başlatma.
+2. Yayın günlüğü, günlük yedekleme ve medya yönetimi.
+3. Blog arama/arşiv/SEO geliştirmeleri.
+4. Hata–yükleme deneyimi iyileştirmeleri.
+5. En son: tek yönetici parolası ve oturum koruması.
+
 ## 0. Mevcut temel
 
 - [x] Next.js blog ve bağımsız `umyz-admin` servisi oluşturuldu.
@@ -41,7 +49,7 @@ Bu belge, Git/MDX tabanlı umyz blogunun WordPress rahatlığında yönetilmesi 
 
 - [ ] Tek yönetici parolalı giriş ve oturum koruması ekle.
 - [ ] Yayın öncesi değişiklik özeti/onayı, Git sonucu ve hata günlüğü ekle.
-- [ ] Tek tuşla derleme, yeniden başlatma ve canlıya alma akışı ekle.
+- [x] Tek tuşla derleme, Git yayını ve yerel blog yeniden başlatma akışı ekle.
 - [ ] Günlük içerik, medya ve Git yedeği ekle.
 
 ## 5. Blog deneyimi
