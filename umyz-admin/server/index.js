@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
+import sharp from 'sharp'
 import { mkdir, readdir, readFile, writeFile, rename, rm } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
@@ -240,11 +241,17 @@ app.post('/api/media', upload.single('file'), async (req, res, next) => {
     const slug = slugify(req.body.slug)
     if (!slug) return res.status(400).json({ error: 'Makale slug bilgisi gerekli.' })
     const now = new Date()
-    const name = `${Date.now()}-${slugify(path.parse(req.file.originalname).name)}${path.extname(req.file.originalname).toLowerCase()}`
+    const originalBase = slugify(path.parse(req.file.originalname).name)
+    const extension = req.file.mimetype === 'image/gif' ? '.gif' : '.webp'
+    const name = `${Date.now()}-${originalBase}${extension}`
     const output = path.join(mediaDir, 'img', String(now.getFullYear()), String(now.getMonth() + 1).padStart(2, '0'), slug, name)
     await mkdir(path.dirname(output), { recursive: true })
-    await writeFile(output, req.file.buffer)
-    res.status(201).json({ path: `/${path.relative(path.dirname(mediaDir), output).replaceAll('\\', '/')}` })
+    if (req.file.mimetype === 'image/gif') {
+      await writeFile(output, req.file.buffer)
+    } else {
+      await sharp(req.file.buffer).rotate().resize({ width: 2560, height: 2560, fit: 'inside', withoutEnlargement: true }).webp({ quality: 82 }).toFile(output)
+    }
+    res.status(201).json({ path: `/${path.relative(path.dirname(mediaDir), output).replaceAll('\\', '/')}`, title: originalBase, alt: originalBase.replaceAll('-', ' ') })
   } catch (error) { next(error) }
 })
 
