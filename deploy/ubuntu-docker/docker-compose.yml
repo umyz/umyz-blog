@@ -1,0 +1,44 @@
+services:
+  blog:
+    build:
+      context: ../..
+      dockerfile: deploy/ubuntu-docker/Dockerfile.blog
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../..:/workspace
+      - blog_node_modules:/workspace/node_modules
+      - blog_next:/workspace/.next
+      - admin_state:/workspace/.admin
+
+  admin:
+    build:
+      context: ../..
+      dockerfile: deploy/ubuntu-docker/Dockerfile.admin
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      CONTENT_DIR: /workspace/src/content
+      MEDIA_DIR: /workspace/public/docs-static
+      GIT_REPOSITORY: /workspace
+      SITE_CONFIG_FILE: /workspace/src/data/site-config.json
+      AUTHORS_FILE: /workspace/src/data/authors.json
+      GIT_PUBLISH_ENABLED: "true"
+      RESTART_SIGNAL_FILE: /workspace/.admin/restart-blog.signal
+    volumes:
+      - ../..:/workspace
+      - blog_node_modules:/workspace/node_modules
+      - admin_node_modules:/workspace/umyz-admin/node_modules
+      - admin_dist:/workspace/umyz-admin/dist
+      - admin_state:/workspace/.admin
+      - ${HOME}/.ssh:/root/.ssh:ro
+
+volumes:
+  blog_node_modules:
+  blog_next:
+  admin_node_modules:
+  admin_dist:
+  admin_state:

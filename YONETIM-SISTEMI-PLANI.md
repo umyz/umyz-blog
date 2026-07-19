@@ -48,7 +48,7 @@ Bu belge, Git/MDX tabanlı umyz blogunun WordPress rahatlığında yönetilmesi 
 
 ## 4. Yayın, güvenlik ve operasyon
 
-- [ ] Tek yönetici parolalı giriş ve oturum koruması ekle.
+- [x] Tek yönetici parolalı giriş ve oturum koruması ekle. (İlk kurulumda parola, scrypt türetmesi ve HttpOnly oturum çerezi.)
 - [x] Yayın öncesi değişiklik özeti/onayı, Git sonucu ve hata günlüğü ekle.
 - [x] Tek tuşla derleme, Git yayını ve yerel blog yeniden başlatma akışı ekle.
 - [x] Günlük içerik, medya ve Git yedeği ekle. (Yerel görev her gün 03:00’te çalışır.)

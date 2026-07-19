@@ -8,6 +8,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
+import { randomBytes, scrypt as scryptCallback, timingSafeEqual, createHmac } from 'node:crypto'
 import { readMdx, writeMdx } from './mdx.js'
 
 const app = express()
@@ -23,12 +24,38 @@ const mediaMetadataFile = path.resolve(process.env.MEDIA_METADATA_FILE || '../sr
 const trashDir = path.join(contentDir, '.trash')
 const revisionsDir = path.join(contentDir, '.revisions')
 const publishLogFile = path.join(repository, '.admin', 'publish-history.json')
+const authFile = path.join(repository, '.admin', 'auth.json')
+const scrypt = promisify(scryptCallback)
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } })
 const imageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
 const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'])
 
 app.use(cors())
 app.use(express.json({ limit: '2mb' }))
+
+const readAuth = async () => existsSync(authFile) ? JSON.parse(await readFile(authFile, 'utf8')) : null
+const hashPassword = async (password, salt = randomBytes(16).toString('hex')) => ({ salt, hash: (await scrypt(password, salt, 64)).toString('hex') })
+const signSession = (secret, expiresAt) => `${expiresAt}.${createHmac('sha256', secret).update(String(expiresAt)).digest('hex')}`
+const cookieValue = (req, name) => Object.fromEntries(String(req.headers.cookie || '').split(';').map(part => part.trim().split('=')))[name]
+const setSession = (res, auth) => { const expiresAt = Date.now() + 1000 * 60 * 60 * 12; res.setHeader('Set-Cookie', `umyz_admin=${signSession(auth.sessionSecret, expiresAt)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=43200${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`) }
+const clearSession = res => res.setHeader('Set-Cookie', 'umyz_admin=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0')
+
+async function requireAdmin(req, res, next) {
+  try {
+    const auth = await readAuth()
+    const value = cookieValue(req, 'umyz_admin')
+    const [expiresAt, signature] = String(value || '').split('.')
+    const expected = auth && signSession(auth.sessionSecret, expiresAt)
+    if (!auth || !expiresAt || Number(expiresAt) < Date.now() || !expected || !timingSafeEqual(Buffer.from(value), Buffer.from(expected))) return res.status(401).json({ error: 'Yönetim oturumu gerekli.' })
+    next()
+  } catch { res.status(401).json({ error: 'Yönetim oturumu gerekli.' }) }
+}
+
+app.get('/api/auth/status', async (_req, res, next) => { try { res.json({ setupRequired: !await readAuth() }) } catch (error) { next(error) } })
+app.post('/api/auth/setup', async (req, res, next) => { try { if (await readAuth()) return res.status(409).json({ error: 'Yönetici parolası zaten oluşturulmuş.' }); const password = String(req.body?.password || ''); if (password.length < 12) return res.status(400).json({ error: 'Parola en az 12 karakter olmalı.' }); const passwordData = await hashPassword(password); const auth = { ...passwordData, sessionSecret: randomBytes(32).toString('hex') }; await mkdir(path.dirname(authFile), { recursive: true }); await writeFile(authFile, `${JSON.stringify(auth, null, 2)}\n`, 'utf8'); setSession(res, auth); res.status(201).json({ ok: true }) } catch (error) { next(error) } })
+app.post('/api/auth/login', async (req, res, next) => { try { const auth = await readAuth(); if (!auth) return res.status(428).json({ error: 'Önce yönetici parolasını oluşturun.' }); const candidate = await hashPassword(String(req.body?.password || ''), auth.salt); if (!timingSafeEqual(Buffer.from(candidate.hash, 'hex'), Buffer.from(auth.hash, 'hex'))) return res.status(401).json({ error: 'Parola hatalı.' }); setSession(res, auth); res.json({ ok: true }) } catch (error) { next(error) } })
+app.post('/api/auth/logout', async (_req, res) => { clearSession(res); res.json({ ok: true }) })
+app.use('/api', requireAdmin)
 
 async function readPublishHistory() {
   if (!existsSync(publishLogFile)) return []
@@ -178,7 +205,13 @@ app.get('/api/media/unused', async (_req, res, next) => {
 app.delete('/api/articles/:slug', async (req, res, next) => {
   try {
     const slug = safeSegment(req.params.slug)
-    const file = (await walk(contentDir)).find(item => path.basename(item, '.mdx') === slug)
+    const requestedPath = String(req.query.path || '').replaceAll('\\', '/')
+    const byPath = requestedPath && !requestedPath.includes('..')
+      ? path.resolve(contentDir, requestedPath)
+      : null
+    const file = byPath && byPath.startsWith(`${contentDir}${path.sep}`) && byPath.endsWith('.mdx') && existsSync(byPath)
+      ? byPath
+      : (await walk(contentDir)).find(item => path.basename(item, '.mdx') === slug)
     if (!slug || !file) return res.status(404).json({ error: 'Makale bulunamadı.' })
     const destination = path.join(trashDir, path.relative(contentDir, file))
     await mkdir(path.dirname(destination), { recursive: true })
@@ -310,6 +343,10 @@ app.post('/api/publish', async (req, res, next) => {
     if (process.env.LOCAL_RESTART_ENABLED === 'true' && process.platform === 'win32') {
       const restart = spawn('cmd.exe', ['/c', path.join(repository, 'scripts', 'restart-blog.cmd')], { detached: true, stdio: 'ignore' })
       restart.unref()
+      restarted = true
+    } else if (process.env.RESTART_SIGNAL_FILE) {
+      await mkdir(path.dirname(process.env.RESTART_SIGNAL_FILE), { recursive: true })
+      await writeFile(process.env.RESTART_SIGNAL_FILE, `${Date.now()}\n`, 'utf8')
       restarted = true
     }
     const result = { at: startedAt, status: 'success', committed, restarted, build: build.stdout.slice(-1200) }

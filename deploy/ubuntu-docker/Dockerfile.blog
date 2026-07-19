@@ -1,0 +1,12 @@
+FROM node:20-alpine
+
+RUN apk add --no-cache bash
+WORKDIR /workspace
+COPY package.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+COPY deploy/ubuntu-docker/blog-supervisor.sh /usr/local/bin/blog-supervisor
+RUN chmod +x /usr/local/bin/blog-supervisor
+EXPOSE 3000
+CMD ["blog-supervisor"]

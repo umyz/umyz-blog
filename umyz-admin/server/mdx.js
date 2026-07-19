@@ -1,8 +1,9 @@
 import { parse } from '@babel/parser'
-import generate from '@babel/generator'
+import generator from '@babel/generator'
 import * as t from '@babel/types'
 
 const parserOptions = { sourceType: 'module', plugins: ['jsx'] }
+const generate = generator.default || generator
 
 function literalValue(node) {
   if (t.isStringLiteral(node) || t.isNumericLiteral(node) || t.isBooleanLiteral(node)) return node.value

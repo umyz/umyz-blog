@@ -1,0 +1,12 @@
+FROM node:20-alpine
+
+RUN apk add --no-cache git openssh-client
+WORKDIR /workspace
+COPY package.json ./
+RUN npm install
+COPY umyz-admin/package.json ./umyz-admin/package.json
+RUN npm --prefix umyz-admin install
+COPY . .
+RUN npm --prefix umyz-admin run build
+EXPOSE 3001
+CMD ["node", "umyz-admin/server/index.js"]
