@@ -20,12 +20,25 @@ const siteConfigFile = path.resolve(process.env.SITE_CONFIG_FILE || '../src/data
 const authorsFile = path.resolve(process.env.AUTHORS_FILE || '../src/data/authors.json')
 const trashDir = path.join(contentDir, '.trash')
 const revisionsDir = path.join(contentDir, '.revisions')
+const publishLogFile = path.join(repository, '.admin', 'publish-history.json')
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } })
 const imageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
 const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'])
 
 app.use(cors())
 app.use(express.json({ limit: '2mb' }))
+
+async function readPublishHistory() {
+  if (!existsSync(publishLogFile)) return []
+  try { return JSON.parse(await readFile(publishLogFile, 'utf8')) } catch { return [] }
+}
+
+async function appendPublishHistory(entry) {
+  const history = await readPublishHistory()
+  history.unshift(entry)
+  await mkdir(path.dirname(publishLogFile), { recursive: true })
+  await writeFile(publishLogFile, `${JSON.stringify(history.slice(0, 30), null, 2)}\n`, 'utf8')
+}
 
 app.get('/api/site-config', async (_req, res, next) => {
   try { res.json(JSON.parse(await readFile(siteConfigFile, 'utf8'))) } catch (error) { next(error) }
@@ -236,6 +249,7 @@ app.post('/api/media', upload.single('file'), async (req, res, next) => {
 })
 
 app.post('/api/publish', async (req, res, next) => {
+  const startedAt = new Date().toISOString()
   try {
     if (process.env.GIT_PUBLISH_ENABLED !== 'true') return res.status(403).json({ error: 'Yayınlama için GIT_PUBLISH_ENABLED=true ayarlayın.' })
     const message = `Yayınla: ${String(req.body.title || 'yönetim paneli').slice(0, 100)}`
@@ -256,8 +270,17 @@ app.post('/api/publish', async (req, res, next) => {
       restart.unref()
       restarted = true
     }
-    res.json({ ok: true, committed, restarted, build: build.stdout.slice(-1200) })
-  } catch (error) { next(error) }
+    const result = { at: startedAt, status: 'success', committed, restarted, build: build.stdout.slice(-1200) }
+    await appendPublishHistory(result)
+    res.json({ ok: true, ...result })
+  } catch (error) {
+    await appendPublishHistory({ at: startedAt, status: 'error', error: error.message || 'Beklenmeyen hata.' })
+    next(error)
+  }
+})
+
+app.get('/api/publish/history', async (_req, res, next) => {
+  try { res.json(await readPublishHistory()) } catch (error) { next(error) }
 })
 
 app.get('/api/publish/status', async (_req, res) => {

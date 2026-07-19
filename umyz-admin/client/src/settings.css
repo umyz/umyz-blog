@@ -5,6 +5,15 @@
 .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .pages-manager { margin-top: 20px; }
 .publish-panel { margin-top: 20px; }
+.publish-history { margin-top: 20px; }
+.publish-history-list { display: grid; gap: 8px; }
+.history-item { display: flex; gap: 10px; align-items: flex-start; padding: 11px 0; border-top: 1px solid #29352b; }
+.history-item > span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; font-weight: 800; }
+.history-item.success > span { color: #b8eb74; background: #294025; }
+.history-item.error > span { color: #f4ae9e; background: #43251f; }
+.history-item strong, .history-item small { display: block; }
+.history-item strong { color: #e6eee7; font-size: 12px; }
+.history-item small { margin-top: 3px; color: #9eaea1; font-size: 11px; }
 .publish-status { display: grid; gap: 16px; }
 .publish-status dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; }
 .publish-status dl div { padding: 12px; border-radius: 8px; background: #111711; }

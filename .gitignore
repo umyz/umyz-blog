@@ -26,6 +26,7 @@ yarn-error.log*
 /umyz-admin/node_modules
 /umyz-admin/dist
 /techhut.tv-main
+/.admin
 
 # OS/IDE
 .DS_Store
