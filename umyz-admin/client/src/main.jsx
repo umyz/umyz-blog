@@ -9,6 +9,7 @@ import './editor.css'
 import './media.css'
 import './authors.css'
 import './rich-editor.css'
+import './filters.css'
 
 const emptyArticle = () => ({ slug: '', title: '', description: '', date: new Date().toISOString().slice(0, 10), status: 'draft', categories: [], tags: [], authors: [], cover: '', body: '' })
 const asList = value => value.split(',').map(item => item.trim()).filter(Boolean)
@@ -21,6 +22,8 @@ function App() {
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState('all')
   const [category, setCategory] = useState('all')
+  const [tag, setTag] = useState('all')
+  const [author, setAuthor] = useState('all')
   const [notice, setNotice] = useState('')
   const [loading, setLoading] = useState(true)
   const [config, setConfig] = useState(null)
@@ -33,10 +36,12 @@ function App() {
   const load = async () => { setLoading(true); const response = await fetch('/api/articles'); const data = await response.json(); if (!response.ok) throw new Error(data.error); setArticles(data); setLoading(false) }
   useEffect(() => { Promise.all([load(), fetch('/api/site-config').then(response => response.json()).then(setConfig), fetch('/api/authors').then(response => response.json()).then(setAuthors)]).catch(error => { setNotice(error.message); setLoading(false) }) }, [])
   const categories = useMemo(() => [...new Set(articles.flatMap(item => item.categories || []))].sort(), [articles])
+  const tags = useMemo(() => [...new Set(articles.flatMap(item => item.tags || []))].sort(), [articles])
+  const authorNames = useMemo(() => [...new Set(articles.flatMap(item => item.authors || []))].sort(), [articles])
   const visible = useMemo(() => articles.filter(item => {
     const matchesQuery = `${item.title} ${item.slug} ${(item.tags || []).join(' ')}`.toLowerCase().includes(query.toLowerCase())
-    return matchesQuery && (status === 'all' || (item.status || 'published') === status) && (category === 'all' || item.categories?.includes(category))
-  }), [articles, query, status, category])
+    return matchesQuery && (status === 'all' || (item.status || 'published') === status) && (category === 'all' || item.categories?.includes(category)) && (tag === 'all' || item.tags?.includes(tag)) && (author === 'all' || item.authors?.includes(author))
+  }), [articles, query, status, category, tag, author])
   const update = (key, value) => { setDirty(true); setArticle(current => ({ ...current, [key]: value })) }
   const loadTrash = async () => { const response = await fetch('/api/trash'); const data = await response.json(); if (!response.ok) throw new Error(data.error); setTrash(data) }
   const loadMedia = async () => { const response = await fetch('/api/media'); const data = await response.json(); if (!response.ok) throw new Error(data.error); setMedia(data) }
@@ -56,6 +61,7 @@ function App() {
     <aside className="sidebar"><a className="brand" href="#" onClick={e => { e.preventDefault(); setView('dashboard') }}><span>u</span> umyz <b>admin</b></a><button className="new-button" onClick={() => { setArticle(emptyArticle()); setView('editor') }}>＋ Yeni yazı</button><nav><NavIcon active={view === 'dashboard'} icon="⌂" label="Genel bakış" onClick={() => setView('dashboard')} /><NavIcon active={view === 'articles'} icon="▤" label="Yazılar" count={articles.length} onClick={() => setView('articles')} /><NavIcon active={view === 'media'} icon="▧" label="Medya" count={media.length} onClick={action(async () => { await loadMedia(); setView('media') })} /><NavIcon active={view === 'authors'} icon="◉" label="Yazarlar" count={Object.keys(authors).length} onClick={() => setView('authors')} /><NavIcon active={view === 'trash'} icon="⌫" label="Çöp kutusu" count={trash.length} onClick={action(async () => { await loadTrash(); setView('trash') })} /><NavIcon active={view === 'editor'} icon="✎" label="Düzenleyici" onClick={() => setView('editor')} /><NavIcon active={view === 'settings'} icon="⚙" label="Site ayarları" onClick={() => setView('settings')} /></nav><div className="sidebar-footer"><span className="dot" /> Yerel çalışma alanı</div></aside>
     <main className="workspace"><header className="topbar"><div><p className="eyebrow">İçerik stüdyosu</p><h1>{view === 'dashboard' ? 'Genel bakış' : view === 'articles' ? 'Yazılar' : view === 'editor' ? (article.slug ? 'Yazıyı düzenle' : 'Yeni yazı') : 'Site ayarları'}</h1></div><div className="top-actions"><span className="notice">{notice}</span><a href="http://localhost:3000" target="_blank" rel="noreferrer" className="ghost">Siteyi görüntüle ↗</a></div></header>
       {view === 'dashboard' && <Dashboard articles={articles} published={published} onArticles={() => setView('articles')} onNew={() => { setArticle(emptyArticle()); setView('editor') }} />}
+      {view === 'articles' && <ArticleAdvancedFilters tag={tag} setTag={setTag} author={author} setAuthor={setAuthor} tags={tags} authors={authorNames} />}
       {view === 'articles' && <ArticleList articles={visible} allArticles={articles} loading={loading} query={query} setQuery={setQuery} status={status} setStatus={setStatus} category={category} setCategory={setCategory} categories={categories} onEdit={action(edit)} onDuplicate={action(duplicate)} onTrash={action(moveToTrash)} onNew={() => { setArticle(emptyArticle()); setView('editor') }} />}
       {view === 'trash' && <Trash items={trash} onRestore={action(restore)} onRemove={action(removeForever)} />}
       {view === 'media' && <MediaLibrary items={media} onChoose={path => { update('cover', path); setView('editor'); setNotice('Kapak görseli seçildi.') }} />}
@@ -70,6 +76,7 @@ function App() {
   </div>
 }
 
+function ArticleAdvancedFilters({ tag, setTag, author, setAuthor, tags, authors }) { return <section className="article-advanced-filters"><label>Etiket<select value={tag} onChange={event => setTag(event.target.value)}><option value="all">Tüm etiketler</option>{tags.map(item => <option key={item}>{item}</option>)}</select></label><label>Yazar<select value={author} onChange={event => setAuthor(event.target.value)}><option value="all">Tüm yazarlar</option>{authors.map(item => <option key={item}>{item}</option>)}</select></label>{(tag !== 'all' || author !== 'all') && <button onClick={() => { setTag('all'); setAuthor('all') }}>Filtreleri temizle</button>}</section> }
 function NavIcon({ active, icon, label, count, onClick }) { return <button className={`nav-item ${active ? 'active' : ''}`} onClick={onClick}><span>{icon}</span>{label}{count !== undefined && <b>{count}</b>}</button> }
 function Dashboard({ articles, published, onArticles, onNew }) { const latest = articles.slice(0, 5); return <><section className="welcome"><div><p>Hoş geldin</p><h2>Bugün ne paylaşmak istiyorsun?</h2><span>Fikirden yayına, tüm içerik akışını buradan yönet.</span><div><button onClick={onNew}>Yeni yazı oluştur</button><button className="ghost" onClick={onArticles}>Tüm yazılar</button></div></div><div className="welcome-mark">✦</div></section><section className="stats"><Stat label="Toplam yazı" value={articles.length} icon="▤" /><Stat label="Yayında" value={published} icon="↗" /><Stat label="Taslak" value={articles.length - published} icon="◌" /></section><section className="panel"><div className="panel-title"><div><h2>Son yazılar</h2><p>En son düzenlenen içerikler</p></div><button className="link-button" onClick={onArticles}>Tümünü gör →</button></div><div className="recent-list">{latest.map(item => <article key={item.slug}><div className="article-initial">{item.title?.[0] || '?'}</div><div><strong>{item.title}</strong><p>{formatDate(item.date)} · {(item.categories || []).join(', ') || 'Kategorisiz'}</p></div><span className="badge published">Yayında</span></article>)}</div></section></> }
 function Stat({ label, value, icon }) { return <div className="stat"><span>{icon}</span><div><b>{value}</b><p>{label}</p></div></div> }

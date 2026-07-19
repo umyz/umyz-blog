@@ -13,7 +13,7 @@ Bu belge, Git/MDX tabanlı umyz blogunun WordPress rahatlığında yönetilmesi 
 ## 1. İçerik yönetimi
 
 - [x] Upstream'deki eski MDX makalelerini geri içeri aktar ve admin listesinde göster. (65 makale geri alındı.)
-- [x] Makale listesine arama, durum, tarih ve kategori filtreleri ekle. (Etiket/yazar filtresi sonraki dilimde.)
+- [x] Makale listesine arama, durum, tarih, kategori, etiket ve yazar filtreleri ekle.
 - [x] Taslak, planlandı, yayında ve arşiv durumlarını MDX meta verisiyle destekle; yayında olmayanları blogdan gizle.
 - [x] Yeni, düzenle, kopyala, çöpe taşı, geri yükle ve kalıcı sil işlemlerini ekle.
 - [x] Otomatik slug, otomatik taslak kaydı, kaydedilmemiş değişiklik uyarısı ve içerik önizlemesi ekle.
