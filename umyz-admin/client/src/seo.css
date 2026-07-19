@@ -1,0 +1,10 @@
+.seo-checklist { margin-top: 20px; }
+.seo-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.seo-item { display: flex; align-items: flex-start; gap: 9px; padding: 11px; border-radius: 8px; background: #2b2519; color: #e5ca8b; }
+.seo-item.ok { background: #1d2c1e; color: #b8eb74; }
+.seo-item > span { display: grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; font-weight: 800; background: #3b3220; }
+.seo-item.ok > span { background: #314b2c; }
+.seo-item strong, .seo-item small { display: block; }
+.seo-item strong { color: #e7efe8; font-size: 12px; }
+.seo-item small { margin-top: 3px; color: #aab8ac; font-size: 11px; line-height: 1.4; }
+@media (max-width: 640px) { .seo-items { grid-template-columns: 1fr; } }
