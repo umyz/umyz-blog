@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { getGitLastModified } from '../src/lib/gitDates.js'
+import { isPublicContent } from '../src/lib/publication.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -26,7 +27,7 @@ function findMdxFiles(dir, basePath = '') {
         const statusMatch = content.match(/export\s+const\s+status\s*=\s*["']([^"']+)["']/)
         const dateMatch = content.match(/export\s+const\s+date\s*=\s*["']([^"']+)["']/)
         const status = statusMatch?.[1] || 'published'
-        if (!['published', 'scheduled'].includes(status) || (dateMatch?.[1] && new Date(dateMatch[1]) > new Date())) continue
+        if (!isPublicContent({ status, date: dateMatch?.[1] })) continue
         // Extract slug from filename (without .mdx extension)
         const slug = entry.name.replace(/\.mdx$/, '')
 

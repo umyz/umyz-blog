@@ -10,6 +10,7 @@
     "gen:slugmap": "node scripts/generate-slug-map.js",
     "gen:sitemap": "node scripts/generate-sitemap.mjs",
     "gen:rss": "node scripts/generate-rss.mjs",
+    "test:publication": "node scripts/check-publication-rules.mjs",
     "start": "next start",
     "lint": "eslint src/",
     "docker:dev": "docker compose up --build",

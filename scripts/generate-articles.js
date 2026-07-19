@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { getGitLastModified } from '../src/lib/gitDates.js'
+import { isPublicContent } from '../src/lib/publication.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -75,8 +76,7 @@ function generateArticles() {
     // Get last modified date from git
     const dateModified = getGitLastModified(filePath)
 
-    const isPublishable = status === 'published' || status === 'scheduled'
-    if (!title || !date || !isPublishable || new Date(date) > new Date()) {
+    if (!title || !date || !isPublicContent({ status, date })) {
       console.warn(`Skipping ${filePath}: missing title or date`)
       continue
     }
