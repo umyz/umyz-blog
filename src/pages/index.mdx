@@ -1,0 +1,52 @@
+export const title = ""
+export const description = "umyz is a community of hardware admirers, home lab builders, open-source advocates, and proud geeks. Find detailed guides, step-by-step tutorials, and unbiased reviews."
+export const date = ""
+export const authors = []
+export const categories = []
+export const tags = []
+
+import {Tiles} from "@/components/Tiles"
+import {RecentContent} from "@/components/RecentContent"
+import {HeroSection} from "@/components/HeroSection"
+import {FeaturedArticle} from "@/components/FeaturedArticle"
+import {CategoryStrip} from "@/components/CategoryStrip"
+import siteConfig from '@/data/site-config.json'
+
+<HeroSection title={siteConfig.home.heroTitle} subtitle={siteConfig.home.heroSubtitle} youtubeUrl={siteConfig.home.youtubeUrl} youtubeLabel={siteConfig.home.youtubeLabel} />
+
+<CategoryStrip categories={siteConfig.categories} />
+
+<FeaturedArticle slug={siteConfig.home.featuredSlug ? `/${siteConfig.home.featuredSlug}` : undefined} />
+
+<RecentContent
+  title={siteConfig.home.latestTitle}
+  id="latest-articles"
+  limit={8}
+/>
+
+<Tiles
+  title={siteConfig.home.picksTitle}
+  id="editors-picks"
+  items={[
+    {
+      href: '/7-docker-basics-for-beginners',
+      name: '7 Docker Basics for Beginners',
+      description: 'Learn Docker fundamentals including installation, volumes, networking, Docker Compose, and container management for beginners getting started with containerization.',
+    },
+    {
+      href: '/top-5-favorite-linux-distros',
+      name: 'Top 5 FAVORITE Linux Distros',
+      description: 'Explore my top 5 favorite Linux distributions including Nobara, Ubuntu Server, SteamOS/HoloISO, KDE Neon, and Vanilla OS for desktop and server use.',
+    },
+    {
+      href: '/old-pc-laptop-media-server',
+      name: 'Turning an OLD PC/Laptop into a Media Server! (Ubuntu/PLEX Guide)',
+      description: 'Transform an old PC or laptop into a media server using Ubuntu Server and Plex, with step-by-step setup for SSH, SFTP, and streaming throughout your home.',
+    },
+    {
+      href: '/how-to-apache-webserver-ssl',
+      name: 'How to make an Apache Webserver with SSL',
+      description: 'Set up an Apache web server on Ubuntu with SSL certificates using Let\'s Encrypt, including firewall configuration and virtual host setup.',
+    },
+  ]}
+/>

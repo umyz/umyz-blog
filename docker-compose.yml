@@ -1,0 +1,45 @@
+services:
+  blog:
+    build:
+      context: .
+      target: development
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://umyz.tr}
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./:/app
+      - blog_node_modules:/app/node_modules
+    depends_on:
+      - admin
+
+  admin:
+    build: ./umyz-admin
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      CONTENT_DIR: /workspace/src/content
+      MEDIA_DIR: /workspace/public/docs-static
+      GIT_REPOSITORY: /workspace
+      SITE_CONFIG_FILE: /workspace/src/data/site-config.json
+      AUTHORS_FILE: /workspace/src/data/authors.json
+    volumes:
+      - ./src/content:/workspace/src/content
+      - ./src/data:/workspace/src/data
+      - ./public/docs-static:/workspace/public/docs-static
+      - ./.git:/workspace/.git
+
+  blog-production:
+    profiles: [production]
+    build:
+      context: .
+      target: production
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://umyz.tr}
+
+volumes:
+  blog_node_modules:

@@ -1,0 +1,11 @@
+# robots.txt for umyz Documentation
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://umyz.tr/sitemap.xml
+
+# Disallow private or system paths (if any)
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/

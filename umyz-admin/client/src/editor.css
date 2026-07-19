@@ -1,0 +1,14 @@
+.editor-status { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; color: #91a394; font: 11px 'DM Mono', monospace; }
+.editor-status button { color: #d5e2d5; background: #253026; border-radius: 6px; padding: 7px 9px; font: 11px 'DM Mono', monospace; }
+.editor-status .unsaved { color: #f5c26a; }
+.editor-status .saved { color: #b8eb74; }
+.preview { min-height: 54vh; color: #dbe5dc; line-height: 1.8; max-width: 720px; }
+.preview h1 { font-size: 36px; line-height: 1.15; margin: 30px 0 12px; }
+.preview h2 { font-size: 23px; margin-top: 32px; }
+.preview-description { color: #a9b7ab; font-size: 17px; }
+.preview blockquote { margin: 20px 0; padding: 12px 18px; border-left: 3px solid #b8eb74; color: #b9c9bc; background: #1d261e; }
+.revision-history { margin-top: 20px; }
+.revision-list { display: grid; gap: 8px; }
+.revision-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 0; border-top: 1px solid #29352b; color: #aab8ac; font: 12px 'DM Mono', monospace; }
+.revision-item button { padding: 7px 10px; border-radius: 6px; color: #dcebdc; background: #253026; font: 11px 'DM Mono', monospace; }
+.revision-item button:hover { background: #354637; }

@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+.upstream
+techhut.tv-main
+umyz-admin/node_modules
+umyz-admin/dist
+npm-debug.log*

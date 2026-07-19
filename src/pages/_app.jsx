@@ -1,0 +1,171 @@
+import Head from 'next/head'
+import Script from 'next/script'
+import dynamic from 'next/dynamic'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Router, useRouter } from 'next/router'
+import { MDXProvider } from '@mdx-js/react'
+
+// Site configuration
+const siteConfig = {
+  googleAnalytics: process.env.NEXT_PUBLIC_GA_ID || '',
+}
+
+import * as mdxComponents from '@/components/mdx'
+import { useMobileNavigationStore } from '@/components/MobileNavigation'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+
+import '@/styles/tailwind.css'
+import { spaceGrotesk, jetbrainsMono } from '@/lib/fonts'
+import 'focus-visible'
+import {Layout} from "@/components/Layout";
+import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import {dom} from "@fortawesome/fontawesome-svg-core";
+import {AnnouncementBannerProvider} from "@/components/announcement-banner/AnnouncementBannerProvider";
+import {JsonLd} from "@/components/JsonLd";
+import {MatomoTagManager} from "@/components/Matomo";
+
+// Lazy load ImageZoom since it's only used on click
+const ImageZoom = dynamic(
+  () => import('@/components/ImageZoom').then(mod => ({ default: mod.ImageZoom })),
+  { ssr: false }
+)
+
+function onRouteChange() {
+  useMobileNavigationStore.getState().close()
+}
+
+Router.events.on('routeChangeStart', onRouteChange)
+Router.events.on('hashChangeStart', onRouteChange)
+
+export default function App({ Component, pageProps }) {
+  let router = useRouter()
+    let tableOfContents = collectHeadings(pageProps.sections)
+
+  // Get cover from pageProps (extracted by recmaNextjsStaticProps)
+  const cover = pageProps.cover
+  const imagePosition = pageProps.imagePosition
+  const description = pageProps.description || `${pageProps.title} - umyz` || 'umyz - Linux guides, software reviews, and tech content'
+  const pageTitle = pageProps.title ? `${pageProps.title} - umyz` : 'umyz - Linux Guides, Reviews & Homelab Tutorials'
+
+  return (
+    <ErrorBoundary>
+      <style jsx global>{`
+        :root {
+          --font-sans: ${spaceGrotesk.style.fontFamily};
+          --font-mono: ${jetbrainsMono.style.fontFamily};
+        }
+        html {
+          font-family: ${spaceGrotesk.style.fontFamily};
+        }
+      `}</style>
+      {/* Google Analytics */}
+      {siteConfig.googleAnalytics && <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.googleAnalytics}`}
+        strategy="afterInteractive"
+      />}
+      {siteConfig.googleAnalytics && <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${siteConfig.googleAnalytics}');
+        `}
+      </Script>}
+      <MatomoTagManager />
+      <Head>
+        <style>{dom.css()}</style>
+        <title>{pageTitle}</title>
+        <meta name="description" content={description} />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://umyz.tr${router.asPath}`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        {cover && <meta property="og:image" content={`https://umyz.tr${cover}`} />}
+        <meta property="og:site_name" content="umyz" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={`https://umyz.tr${router.asPath}`} />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={description} />
+        {cover && <meta name="twitter:image" content={`https://umyz.tr${cover}`} />}
+        <meta name="twitter:creator" content="@umyztr" />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href={`https://umyz.tr${router.asPath}`} />
+
+        {/* RSS Feed */}
+        <link rel="alternate" type="application/rss+xml" title="umyz RSS Feed" href="https://umyz.tr/rss" />
+      </Head>
+      <JsonLd
+        title={pageProps.title}
+        description={description}
+        date={pageProps.date}
+        authors={pageProps.authors}
+        cover={cover}
+      />
+      <AnnouncementBannerProvider>
+          <MDXProvider components={mdxComponents}>
+              <Layout
+                key={router.asPath}
+                title={pageProps.title?.toString()}
+                tableOfContents={tableOfContents}
+                coverImage={cover}
+                imagePosition={imagePosition}
+                {...pageProps}
+              >
+                  <Component {...pageProps} />
+              </Layout>
+          </MDXProvider>
+      </AnnouncementBannerProvider>
+      <ToastContainer />
+      <ImageZoom />
+      <Analytics />
+      <SpeedInsights />
+    </ErrorBoundary>
+  )
+}
+
+function collectHeadings(sections) {
+    let output = []
+
+    if (sections === undefined) {
+        return []
+    }
+    for (let section of sections) {
+        if (section.tagName === 'h2' || section.tagName === 'h3') {
+            let title = section.title
+            let id = section.id
+            let tag = section.tag
+            if (section.tagName === 'h3') {
+                // Check if there's a last item and it's an h2 (has children array)
+                const lastItem = output[output.length - 1]
+                if (!lastItem || !lastItem.children) {
+                    // If no h2 exists, treat h3 as a top-level item
+                    // This handles cases where h3 appears before any h2
+                    output.push({ id, title, tag, children: [] })
+                } else {
+                    // Add h3 as a child of the last h2
+                    lastItem.children.push({
+                        id,
+                        title,
+                        tag,
+                    })
+                }
+            } else {
+                output.push({ id, title, tag, children: [] })
+            }
+        }
+
+        // Recursively process children if they exist
+        if (section.children && Array.isArray(section.children)) {
+            output.push(...collectHeadings(section.children))
+        }
+    }
+
+    return output
+}

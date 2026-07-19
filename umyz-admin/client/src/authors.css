@@ -1,0 +1,8 @@
+.authors-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 18px; }
+.author-list { padding: 16px; } .author-list .panel-title { margin-bottom: 12px; }
+.author-list .panel-title button { background: #b8eb74; color: #142016; border-radius: 6px; padding: 7px 9px; font-weight: 700; }
+.author-item { width: 100%; display: flex; gap: 10px; align-items: center; padding: 10px; text-align: left; color: #dce6dd; background: transparent; border-radius: 7px; }
+.author-item span { display: grid; place-items: center; width: 30px; height: 30px; color: #b8eb74; background: #2a382b; border-radius: 50%; font-weight: 800; }
+.author-item small { display: block; color: #8fa190; margin-top: 2px; } .author-item.active { background: #263128; }
+.author-form { max-width: 680px; } .author-form h2 { margin-bottom: 22px; }
+@media (max-width: 760px) { .authors-layout { grid-template-columns: 1fr; } }

@@ -1,0 +1,45 @@
+{
+  "home": {
+    "heroTitle": "Kişisel Deneyim Notlarım",
+    "heroSubtitle": "Yazılım, açık kaynak, homelab ve üretkenlik üzerine pratik içerikler.",
+    "youtubeUrl": "",
+    "youtubeLabel": "YouTube'a abone ol",
+    "featuredSlug": "",
+    "latestTitle": "Son Yazılar",
+    "picksTitle": "Editörün Seçtikleri",
+    "picks": []
+  },
+  "categories": [
+    "Rehberler",
+    "Yazılım",
+    "Donanım",
+    "İnceleme",
+    "Notlar"
+  ],
+  "tags": [],
+  "footer": {
+    "description": "Teknoloji, açık kaynak ve kişisel projeler üzerine notlar.",
+    "pages": [
+      {
+        "label": "Tüm Yazılar",
+        "href": "/content"
+      }
+    ],
+    "ad": {
+      "enabled": false,
+      "imageUrl": "",
+      "targetUrl": "",
+      "alt": ""
+    },
+    "githubUrl": "",
+    "copyright": "Tüm hakları saklıdır."
+  },
+  "social": {
+    "youtube": "",
+    "github": "",
+    "x": "",
+    "instagram": "",
+    "linkedin": ""
+  },
+  "pages": []
+}
