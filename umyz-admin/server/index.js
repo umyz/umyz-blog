@@ -111,6 +111,25 @@ app.get('/api/media', async (_req, res, next) => {
   } catch (error) { next(error) }
 })
 
+app.get('/api/media/unused', async (_req, res, next) => {
+  try {
+    const files = (await walk(mediaDir, true)).filter(file => imageExtensions.has(path.extname(file).toLowerCase()))
+    const contentFiles = await walk(contentDir)
+    const textSources = await Promise.all([
+      ...contentFiles.map(file => readFile(file, 'utf8')),
+      readFile(siteConfigFile, 'utf8'),
+      readFile(authorsFile, 'utf8')
+    ])
+    const searchable = textSources.join('\n')
+    const unused = files.map(file => ({
+      name: path.basename(file),
+      path: `/${path.relative(path.dirname(mediaDir), file).replaceAll('\\', '/')}`,
+      folder: path.relative(mediaDir, path.dirname(file)).replaceAll('\\', '/')
+    })).filter(item => !searchable.includes(item.path))
+    res.json({ total: files.length, unused })
+  } catch (error) { next(error) }
+})
+
 app.delete('/api/articles/:slug', async (req, res, next) => {
   try {
     const slug = safeSegment(req.params.slug)
