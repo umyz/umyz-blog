@@ -1,4 +1,9 @@
 .article-advanced-filters { display: flex; align-items: end; gap: 12px; margin-bottom: 14px; }
 .article-advanced-filters label { display: grid; gap: 6px; min-width: 170px; color: #91a394; font: 10px 'DM Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
 .article-advanced-filters button { padding: 10px 12px; border-radius: 7px; color: #cbdacb; background: #253026; font-size: 12px; }
+.status-filter { display: grid; gap: 6px; }
+.status-filter > span { color: #91a394; font: 10px 'DM Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+.status-filter > div { display: flex; gap: 5px; flex-wrap: wrap; }
+.status-filter button { padding: 8px 9px; }
+.status-filter button.active { color: #152116; background: #b8eb74; }
 @media (max-width: 640px) { .article-advanced-filters { align-items: stretch; flex-direction: column; } .article-advanced-filters label { min-width: 0; } }

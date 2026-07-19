@@ -26,7 +26,7 @@ function findMdxFiles(dir, basePath = '') {
         const statusMatch = content.match(/export\s+const\s+status\s*=\s*["']([^"']+)["']/)
         const dateMatch = content.match(/export\s+const\s+date\s*=\s*["']([^"']+)["']/)
         const status = statusMatch?.[1] || 'published'
-        if (status !== 'published' || (dateMatch?.[1] && new Date(dateMatch[1]) > new Date())) continue
+        if (!['published', 'scheduled'].includes(status) || (dateMatch?.[1] && new Date(dateMatch[1]) > new Date())) continue
         // Extract slug from filename (without .mdx extension)
         const slug = entry.name.replace(/\.mdx$/, '')
 

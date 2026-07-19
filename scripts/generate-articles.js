@@ -74,7 +74,8 @@ function generateArticles() {
     // Get last modified date from git
     const dateModified = getGitLastModified(filePath)
 
-    if (!title || !date || status !== 'published' || new Date(date) > new Date()) {
+    const isPublishable = status === 'published' || status === 'scheduled'
+    if (!title || !date || !isPublishable || new Date(date) > new Date()) {
       console.warn(`Skipping ${filePath}: missing title or date`)
       continue
     }
